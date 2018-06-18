@@ -6,6 +6,7 @@
 // Clay Budin
 // clay_budin@hotmail.com
 // Mar 28 2018
+// Rev: Jun 18 2018
 //
 // TO DO:
 //	add arbitrary background image or movie
@@ -16,6 +17,9 @@
 
 
 import java.io.*;
+import java.time.format.DateTimeFormatter;  
+import java.time.LocalDateTime;
+
 
 import controlP5.*;
 import KinectPV2.*;
@@ -26,33 +30,35 @@ KinectPV2 kinect;
 
 ArrayList<P> ps = new ArrayList<P>();
 
-final boolean KINECT_LIVE = true; //true; //false;
-final String REPLAY_FILE = "C:/work/Personal/SoniaLi/P3/sketches/kinectCapture/data/skelAnimData_1520819418196.dat";
+final boolean KINECT_LIVE = true; //true or false;
+final String REPLAY_FILE = "skelAnimData_1520819418196.dat";
 
 final int NUM_JOINTS = 26;
 final int NUM_JOINT_FLOATS = NUM_JOINTS * 3;
+
 ArrayList<Float> skelAnimData = new ArrayList<Float>();
 int nAnimFrms = 0;
 int curFrm = 0;
 
 float[] jointData = new float[NUM_JOINTS * 3];
 
-
-
+ArrayList<Float> pf = new ArrayList<Float>();
 
 boolean showGUI = false;
 final int GUI_X = 10, GUI_Y = 10, GUI_W = 200, GUI_H = 20, GUI_SPACING = 25;
 int nGUI = 0;
 
-boolean show_background = true;
-boolean show_skeletons = !KINECT_LIVE;
-boolean show_axes = false;
 final float ELLIPSE_SIZE = 10.0;
 final color SKEL_COLOR = color(0,0,255);
 
-boolean head = true, arms = true, hips = true, legs = true;
 
 // parameters controlled by GUI
+boolean show_background = true;
+boolean show_skeletons = !KINECT_LIVE;
+boolean show_axes = false;
+boolean show_framerate = true;
+boolean head = true, arms = true, hips = true, legs = true;
+boolean draw_points = true;
 float bg_tint = 128.0;
 float particle_size = 5.0;
 float particle_life = 25.0;
@@ -69,24 +75,25 @@ float particle_sat = .75;
 float particle_val = 1.0;
 
 
-
+// setup() is called once at the start of the sketch
 void setup() {
-	//size(1920, 1080, P3D);
+	// size of display window and/or projector
+	size(1920, 1080, P3D);		// native Kinect color image
 	//size(1280, 800, P3D);
-	fullScreen(P3D);
+	//fullScreen(P3D);
+
 	frameRate(30); //60);
 
+	// initialize Kinect if live, or load one of the recorded animations
 	if (KINECT_LIVE)  {
 		kinect = new KinectPV2(this);
 
 		kinect.enableColorImg(true);
-		//kinect.enableSkeleton(true);
 		kinect.enableSkeletonColorMap(true);
-
 		kinect.init();
 	} else  {
 		try {
-			FileInputStream fis = new FileInputStream(REPLAY_FILE);
+			FileInputStream fis = new FileInputStream(dataPath(REPLAY_FILE));
 			DataInputStream dis = new DataInputStream(fis);
 			try {
 				while (true)
@@ -103,18 +110,22 @@ void setup() {
 	}
 
 
+	// setup GUI
 	cp5 = new ControlP5(this);
 	cp5.setAutoDraw(false);
 
 	cp5.addToggle("show_background").setPosition(GUI_X, GUI_Y+GUI_SPACING*nGUI++).setSize(GUI_H, GUI_H).getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, ControlP5.CENTER).setPaddingX(3);
 	cp5.addToggle("show_skeletons").setPosition(GUI_X, GUI_Y+GUI_SPACING*nGUI++).setSize(GUI_H, GUI_H).getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, ControlP5.CENTER).setPaddingX(3);
 	cp5.addToggle("show_axes").setPosition(GUI_X, GUI_Y+GUI_SPACING*nGUI++).setSize(GUI_H, GUI_H).getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, ControlP5.CENTER).setPaddingX(3);
+	cp5.addToggle("show_framerate").setPosition(GUI_X, GUI_Y+GUI_SPACING*nGUI++).setSize(GUI_H, GUI_H).getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, ControlP5.CENTER).setPaddingX(3);
 
 	cp5.addToggle("head").setPosition(GUI_X, GUI_Y+GUI_SPACING*nGUI).setSize(GUI_H, GUI_H).getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, ControlP5.CENTER).setPaddingX(3);
 	cp5.addToggle("arms").setPosition(GUI_X+50, GUI_Y+GUI_SPACING*nGUI).setSize(GUI_H, GUI_H).getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, ControlP5.CENTER).setPaddingX(3);
 	cp5.addToggle("hips").setPosition(GUI_X+100, GUI_Y+GUI_SPACING*nGUI).setSize(GUI_H, GUI_H).getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, ControlP5.CENTER).setPaddingX(3);
 	cp5.addToggle("legs").setPosition(GUI_X+150, GUI_Y+GUI_SPACING*nGUI).setSize(GUI_H, GUI_H).getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, ControlP5.CENTER).setPaddingX(3);
 	++nGUI;
+
+	cp5.addToggle("draw_points").setPosition(GUI_X, GUI_Y+GUI_SPACING*nGUI++).setSize(GUI_H, GUI_H).getCaptionLabel().align(ControlP5.RIGHT_OUTSIDE, ControlP5.CENTER).setPaddingX(3);
 
 	cp5.addSlider("bg_tint").setPosition(GUI_X, GUI_Y+GUI_SPACING*nGUI++).setRange(0.0,255.9).setSize(GUI_W, GUI_H);
 	cp5.addSlider("particle_size").setPosition(GUI_X, GUI_Y+GUI_SPACING*nGUI++).setRange(.1,20.0).setSize(GUI_W, GUI_H);
@@ -137,13 +148,14 @@ void setup() {
 }
 
 
+// draw() is called every frame of the sketch
 void draw() {
 	background(0);
 
 	pushMatrix();
 
 	// flip image to look correct - this will apply to skeleton drawing also
-scale(.7);	// adjust for 1280x800 projector
+	//scale(.7);	// adjust for 1280x800 projector
 	translate(1920,0);
 	scale(-1,1);
 
@@ -206,32 +218,42 @@ scale(.7);	// adjust for 1280x800 projector
 	// draw particles
 	strokeWeight(particle_size);
 
-	ArrayList<Float> pf = new ArrayList<Float>();
+	// update all the particles
 	for (int i = ps.size()-1; i > 0; --i)  {
 		P p = ps.get(i);
 		if (p.update())  {
-			//p.draw();
-			pf.add(p.p.x);
-			pf.add(p.p.y);
-			pf.add(p.p.z);
-			if (pf.size() >= 8*3)  {
-				stroke(p.c);
-				noFill();
-				//for (int l = 0; l <= pf.size()/3; l += 3)
-				//	line(pf.get(l*3+0),pf.get(l*3+1),pf.get(l*3+2), pf.get((l+1)*3+0),pf.get((l+1)*3+1),pf.get((l+1)*3+2));
-				for (int l = 1; l < (pf.size()/3)-1; l += 3)
-					bezier(pf.get((l-1)*3+0),pf.get((l-1)*3+1),pf.get((l-1)*3+2),
-						   pf.get(l*3+0),pf.get(l*3+1),pf.get(l*3+2),
-						   pf.get((l+1)*3+0),pf.get((l+1)*3+1),pf.get((l+1)*3+2),
-						   pf.get((l+2)*3+0),pf.get((l+2)*3+1),pf.get((l+2)*3+2));
-				pf.clear();
+			// here we draw the particle - experiment with different methods of drawing
+
+			if (draw_points)  {
+				// draw as a point
+				p.draw();
+			} else  {
+				// store points until we accumulate 8 and then draw them as a line
+				pf.add(p.p.x);
+				pf.add(p.p.y);
+				pf.add(p.p.z);
+				if (pf.size() >= 8*3)  {
+					stroke(p.c);
+					noFill();
+
+					for (int l = 0; l <= pf.size()/3; l += 3)
+						line(pf.get(l*3+0),pf.get(l*3+1),pf.get(l*3+2), pf.get((l+1)*3+0),pf.get((l+1)*3+1),pf.get((l+1)*3+2));
+
+					// for (int l = 1; l < (pf.size()/3)-1; l += 3)
+					// 	bezier(pf.get((l-1)*3+0),pf.get((l-1)*3+1),pf.get((l-1)*3+2),
+					// 		pf.get(l*3+0),pf.get(l*3+1),pf.get(l*3+2),
+					// 		pf.get((l+1)*3+0),pf.get((l+1)*3+1),pf.get((l+1)*3+2),
+					// 		pf.get((l+2)*3+0),pf.get((l+2)*3+1),pf.get((l+2)*3+2));
+
+					pf.clear();
+				}
 			}
 		} else
 			ps.remove(i);
 	}
 
 
-	popMatrix();
+	popMatrix();	// this matches pushMatrix() above
 
 	if (show_axes)  {
 		// draw axes
@@ -248,7 +270,6 @@ scale(.7);	// adjust for 1280x800 projector
 		popMatrix();
 	}
 
-
 	if (showGUI)  {
 		stroke(255);
 		strokeWeight(1);
@@ -257,9 +278,10 @@ scale(.7);	// adjust for 1280x800 projector
 		cp5.draw();
 	}
 
-	fill(255, 0, 0);
-	text(String.format("%.2f %d %d %.2f %.2f %.2f", frameRate, nSkel, curFrm, sx,sy,sz), 10, height-10);
-
+	if (show_framerate)  {
+		fill(255, 0, 0);
+		text(String.format("%.2f %d %d %.2f %.2f %.2f", frameRate, nSkel, curFrm, sx,sy,sz), 10, height-10);
+	}
 
 	++curFrm;
 	if (!KINECT_LIVE && curFrm >= nAnimFrms) curFrm = 0;
@@ -278,7 +300,8 @@ void mousePressed ()  {
 void save_settings ()  {
 	//println("save_settings()");
 	try {
-		PrintWriter out = new PrintWriter(sketchPath() + "/settings/settings_" + System.currentTimeMillis() + ".dat");
+		//PrintWriter out = new PrintWriter(sketchPath() + "/settings/settings_" + System.currentTimeMillis() + ".dat");
+		PrintWriter out = new PrintWriter(sketchPath() + "/settings/settings_" + DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss").format(LocalDateTime.now()) + ".dat");
 		out.println("particle_size = " + particle_size);
 		out.println("particle_life = " + particle_life);
 		out.println("particle_density = " + particle_density);
@@ -299,12 +322,13 @@ void save_settings ()  {
 }
 
 void save_image ()  {
-	saveFrame(String.format("frm/Dancer01_%d.png", System.currentTimeMillis()));
+	saveFrame(String.format("frm/Dancer01_%s.png", DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss").format(LocalDateTime.now())));
 }
 
 void quit ()  {
 	exit();
 }
+
 
 
 
@@ -483,8 +507,11 @@ void drawBone (int jointType1, int jointType2) {
 
 
 
+// Utility functions
+
+// convert Hue-Saturation-Value to RGB w/ Alpha
 color hsv2rgb (float h, float s, float v, int a)  { 
-	if (s <= 0.0)	  // < is bogus, just shuts up warnings
+	if (s <= 0.0)
 		return 0;
  
 	while (h >= 360.0) h -= 360.0;
@@ -511,6 +538,7 @@ color hsv2rgb (float h, float s, float v, int a)  {
 }
 
 
+// generate a random vector inside a unit sphere
 PVector sphRand ()  {
 	float xs,ys,zs;
 	do  {
