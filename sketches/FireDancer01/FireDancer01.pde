@@ -30,7 +30,7 @@ KinectPV2 kinect;
 
 ArrayList<P> ps = new ArrayList<P>();
 
-final boolean KINECT_LIVE = true; //true or false;
+final boolean KINECT_LIVE = false; //true or false;
 final String REPLAY_FILE = "skelAnimData_1520819418196.dat";
 
 final int NUM_JOINTS = 26;
@@ -301,7 +301,18 @@ void save_settings ()  {
 	//println("save_settings()");
 	try {
 		//PrintWriter out = new PrintWriter(sketchPath() + "/settings/settings_" + System.currentTimeMillis() + ".dat");
-		PrintWriter out = new PrintWriter(sketchPath() + "/settings/settings_" + DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss").format(LocalDateTime.now()) + ".dat");
+		String timeStamp = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss").format(LocalDateTime.now());
+		PrintWriter out = new PrintWriter(sketchPath() + "/settings/settings_" + timeStamp + ".dat");
+		out.println("show_background = " + show_background);
+		out.println("show_skeletons = " + show_skeletons);
+		out.println("show_axes = " + show_axes);
+		out.println("show_framerate = " + show_framerate);
+		out.println("head = " + head);
+		out.println("arms = " + arms);
+		out.println("hips = " + hips);
+		out.println("legs = " + legs);
+		out.println("draw_points = " + draw_points);
+		out.println("bg_tint = " + bg_tint);
 		out.println("particle_size = " + particle_size);
 		out.println("particle_life = " + particle_life);
 		out.println("particle_density = " + particle_density);
@@ -316,13 +327,16 @@ void save_settings ()  {
 		out.println("particle_sat = " + particle_sat);
 		out.println("particle_val = " + particle_val);
 		out.close();
+
+		saveFrame(String.format("settings/FireDancer01_%s.png", timeStamp));
 	} catch(Exception ex) {
 		ex.printStackTrace();
 	}
 }
 
 void save_image ()  {
-	saveFrame(String.format("frm/Dancer01_%s.png", DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss").format(LocalDateTime.now())));
+	String timeStamp = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss").format(LocalDateTime.now());
+	saveFrame(String.format("frm/FireDancer01_%s.png", timeStamp));
 }
 
 void quit ()  {
