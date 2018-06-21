@@ -78,9 +78,9 @@ float particle_val = 1.0;
 // setup() is called once at the start of the sketch
 void setup() {
 	// size of display window and/or projector
-	size(1920, 1080, P3D);		// native Kinect color image
+	//size(1920, 1080, P3D);		// native Kinect color image
 	//size(1280, 800, P3D);
-	//fullScreen(P3D);
+	fullScreen(P3D);
 
 	frameRate(30); //60);
 
