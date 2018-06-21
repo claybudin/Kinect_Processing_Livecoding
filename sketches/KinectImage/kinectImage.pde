@@ -22,6 +22,7 @@ void setup() {
 	kinect = new KinectPV2(this);
 
 	kinect.enableColorImg(true);
+	kinect.enableDepthImg(true);
 	kinect.enableSkeletonColorMap(false);
 
 	kinect.init();
@@ -41,10 +42,24 @@ void draw() {
 
 	// draw color image from Kinect
 	//image(kinect.getColorImage(), 0, 0);
+	//image(kinect.getDepthImage(), 0, 0);
+
+/*
+	PImage d = kinect.getDepthImage();
+	d.resize(1920,1080);
+	image(d,0,0);
+*/
 
 	PImage img = kinect.getColorImage();
 
+
 	img.filter(POSTERIZE, 3);
+
+	// add crazy rotation
+	translate(960,540);
+	rotate(.25*sin(frameCount*.05));
+	translate(-960,-540);
+
 
 	tint(255, 4); //8);
 	image(img, 0,0);
