@@ -8,6 +8,8 @@
 // This code comes from
 //  https://github.com/processing/processing-video/issues/32
 // and the links contained there
+//	https://organicmonkeymotion.wordpress.com/2015/08/22/getting-webcams-working-in-processing/
+//	http://webcam-capture.sarxos.pl/
 // the blog posts mentions replacing webcam-capture-0.3.10.jar with
 //  webcam-capture-0.3.11-20150713.101234-10.jar, but the link to the
 //  newer file was broken.  The older version of the .jar file seems to
