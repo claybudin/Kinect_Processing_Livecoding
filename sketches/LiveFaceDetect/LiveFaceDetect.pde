@@ -7,6 +7,8 @@
 // Oreiginal source from here:
 //  https://github.com/shiffman/Face-It
 //
+// Requires: OpenCV for Processing library
+//
 
 // Now we need the video library
 //import processing.video.*;
@@ -93,4 +95,3 @@ void draw () {
     }
   }
 }
-

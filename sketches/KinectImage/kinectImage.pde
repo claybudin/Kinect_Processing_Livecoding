@@ -14,7 +14,6 @@ KinectPV2 kinect;
 
 void setup() {
 	//size(1920, 1080, P3D);
-	//size(1280, 800, P3D);
 	fullScreen(P3D);
 
 	frameRate(30); //60);
@@ -36,7 +35,7 @@ void draw() {
 
 	pushMatrix();
 
-	// flip image to look correct - this will apply to skeleton drawing also
+	// flip image to look correct
 	translate(1920,0);
 	scale(-1,1);
 
@@ -69,5 +68,3 @@ void draw() {
 
 	text(String.format("%.2f", frameRate), 10, height-10);
 }
-
-

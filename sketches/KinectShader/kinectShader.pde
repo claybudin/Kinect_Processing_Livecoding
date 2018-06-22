@@ -42,19 +42,12 @@ void draw() {
 
 	pushMatrix();
 
-	// flip image to look correct - this will apply to skeleton drawing also
+	// flip image to look correct
 	translate(1920,0);
 	scale(-1,1);
 
-	// draw color image from Kinect
+	// draw color image from Kinect through shader
 	image(kinect.getColorImage(), 0, 0);
-
-	// PImage img = kinect.getColorImage();
-
-	// img.filter(POSTERIZE, 3);
-
-	// tint(255, 8);
-	// image(img, 0,0);
 
 	popMatrix();
 
@@ -69,5 +62,3 @@ void mousePressed ()  {
 		exit();
 	}
 }
-
-
