@@ -29,5 +29,6 @@ Many people were asking if it's possible to use the Kinect on the Mac, since the
 1. Download the open-source OpenKinect-for-Processing library [here](https://github.com/shiffman/OpenKinect-for-Processing/releases)
 2. Unzip the file and move the whole folder (openkinect_processing) into the libraries folder in your Sketchbook location.
 3. You will need to re-launch Processing so it can see the new library.
+
 I re-wrote several of the sketches to use this library and tested it on a Mac.
 
