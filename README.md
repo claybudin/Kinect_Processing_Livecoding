@@ -26,9 +26,10 @@ Have fun!
 
 ### Update: Using Kinect with Mac
 Many people were asking if it's possible to use the Kinect on the Mac, since the Kinect is a Microsoft product.  It is possible by using an open-source library, which gives you access to all of the images coming from the Kinect, but not the skeleton information.  Here is how you can do it:
-1. Download the open-source OpenKinect-for-Processing library [here](https://github.com/shiffman/OpenKinect-for-Processing/releases)
+1. Download the open-source OpenKinect-for-Processing library openkinect_processing.zip from [here](https://github.com/shiffman/OpenKinect-for-Processing/releases).  As I write this the latest version is 1.0
 2. Unzip the file and move the whole folder (openkinect_processing) into the libraries folder in your Sketchbook location.
 3. You will need to re-launch Processing so it can see the new library.
+4. Look in the openkinect_processing folder in the examples folder for some sample sketches.
 
 I re-wrote several of the sketches to use this library and tested it on a Mac.
 
