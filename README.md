@@ -31,5 +31,5 @@ Many people were asking if it's possible to use the Kinect on the Mac, since the
 3. You will need to re-launch Processing so it can see the new library.
 4. Look in the openkinect_processing folder in the examples folder for some sample sketches.
 
-I re-wrote several of the sketches to use this library and tested it on a Mac.
+I created new versions of several of the sketches to use this library and tested it on a Mac.
 
